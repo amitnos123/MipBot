@@ -1,10 +1,10 @@
 //Loading Libs
 const Discord = require('discord.js');
+const config = require('config.js');
 //const fs = require('fs');
 const client = new Discord.Client();
 
 //Constants
-const token = 'NjE1MTg3NzQ3Mjc5NDcwNjA0.XWKbyQ.CERp9ImWnWlExcNZQykTcJDWffw';
 const PREFIX = '!';
 const JSON_PATH = './json_files/';
 const MAX_DELETE_ROWS = 100;
