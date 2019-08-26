@@ -1,6 +1,5 @@
 //Loading Libs
 const Discord = require('discord.js');
-const config = require('config.js');
 //const fs = require('fs');
 const client = new Discord.Client();
 
@@ -11,9 +10,10 @@ const MAX_DELETE_ROWS = 100;
 
 //JSON loading
 const messages = require(JSON_PATH + 'messages.json');
+const config = require(JSON_PATH + 'config.json');
 
 //Connecting to server
-client.login(token);
+client.login(config.token);
 
 //Functions
 function logMessage(debugLvl, logMessage) {
