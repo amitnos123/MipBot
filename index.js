@@ -45,10 +45,10 @@ client.on('message', function (message) {
                 message.channel.send(isInteger(arg[1]));
                 break;
             case 'testLink':
-                message.channel.send(channelLink("615195381285912600"));
+                message.channel.send(convertChannelLink("615195381285912600"));
                 break;
             case 'testMessage':
-                messageSend = replaceWithChannelLinks(messages["WELCOME"]["MESSAGE"])
+                messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
                 message.channel.send(messageSend);
                 break;
             case 'testGetChannelId':
@@ -59,7 +59,6 @@ client.on('message', function (message) {
                 message.channel.send('Error 404');
                 break;
         }
-        logMessage('debug', JSON.stringify(channels))
         logMessage('debug', 'On message End');
     }
 });
@@ -104,30 +103,50 @@ function deleteMessages(message, NumOfMessages) {
     }
 }
 
-function channelLink(channelIdStr) {
-    let str = '#' + channelIdStr + '';
+function convertChannelLink(channelIdStr) {
+    let str = '<#' + channelIdStr + '>';
     return str;
 }
 
-function replaceWithChannelLinks(messageStr) {
+//function replaceWithChannelLinks(messageStr) {
+//    let startSubString = 1;
+//    let endSubString = 0;
+//    let subStr = 0;
+
+//    startSubString = messageStr.indexOf('<');
+//    endSubString = messageStr.indexOf('>', startSubString) + 1;//Will go over the <
+//    while (startSubString != 0 && endSubString != -1) {
+//        subStr = messageStr.substr(startSubString, endSubString - startSubString);
+//        messageStr = messageStr.substr(0, startSubString) + convertChannelLink(channels['text'][subStr]) + messageStr.substr(endSubString);
+
+//        startSubString = messageStr.indexOf('<', endSubString) + 1;//Won't go over the <
+//        endSubString = messageStr.indexOf('>', startSubString);
+//    }
+
+//    logMessage('info', 'messageStr=' + messageStr);
+//    return messageStr;
+//}
+
+
+function replaceWith(messageStr, startChar, endChar, convertFunc, strArr) {
     let startSubString = 1;
     let endSubString = 0;
     let subStr = 0;
 
-    startSubString = messageStr.indexOf('<') + 1;//Won't go over the <
-    endSubString = messageStr.indexOf('>', startSubString);
-    while (startSubString != 0 && endSubString != -1) {
+    startSubString = messageStr.indexOf(startChar);
+    endSubString = messageStr.indexOf(endChar, startSubString) + 1;//Will go over the startChar
+    while (startSubString != -1 && endSubString != 0) {
         subStr = messageStr.substr(startSubString, endSubString - startSubString);
-        messageStr = messageStr.substr(0, startSubString) + channelLink(channels['text'][subStr]) + messageStr.substr(endSubString);
 
-        startSubString = messageStr.indexOf('<', endSubString) + 1;//Won't go over the <
-        endSubString = messageStr.indexOf('>', startSubString);
+        newStr = messageStr.substr(0, startSubString);
+        //Removing from subStr the first and last chars, which are startChar, endChar
+        newStr += convertFunc(strArr[subStr.substr(1, subStr.length - 2)]);
+        messageStr = newStr + messageStr.substr(endSubString);
+
+        startSubString = messageStr.indexOf(startChar, endSubString);
+        endSubString = messageStr.indexOf(endChar, startSubString) + 1;//Will go over the startChar
     }
 
     logMessage('info', 'messageStr=' + messageStr);
     return messageStr;
-}
-
-function replaceSubStrByIndex(str, replacement, index) {
-    return str.substr(0, index) + replacement + str.substr(index + replacement.length);
 }
