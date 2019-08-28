@@ -23,6 +23,7 @@ client.on('ready', function() {
 });
 
 client.on('message', function (message) {
+    let messageSend = '';
     if (message.content[0] === PREFIX && !message.author.bot) {
         console.log('-------------------------------');
         logMessage('debug', 'On Message Start');
@@ -46,11 +47,20 @@ client.on('message', function (message) {
             case 'testLink':
                 message.channel.send(channelLink("615195381285912600"));
                 break;
+            case 'testMessage':
+                messageSend = replaceWithChannelLinks(messages["WELCOME"]["MESSAGE"])
+                message.channel.send(messageSend);
+                break;
+            case 'testGetChannelId':
+                messageSend = channels['text'][arg[1]];
+                message.channel.send(messageSend);
+                break;
             default:
                 message.channel.send('Error 404');
                 break;
         }
-        console.log('DEBUG:' + 'On message End');
+        logMessage('debug', JSON.stringify(channels))
+        logMessage('debug', 'On message End');
     }
 });
 
@@ -95,10 +105,29 @@ function deleteMessages(message, NumOfMessages) {
 }
 
 function channelLink(channelIdStr) {
-    let str = '<#' + channelIdStr + '>';
+    let str = '#' + channelIdStr + '';
     return str;
 }
 
-function writeToChannel() {
-	
+function replaceWithChannelLinks(messageStr) {
+    let startSubString = 1;
+    let endSubString = 0;
+    let subStr = 0;
+
+    startSubString = messageStr.indexOf('<') + 1;//Won't go over the <
+    endSubString = messageStr.indexOf('>', startSubString);
+    while (startSubString != 0 && endSubString != -1) {
+        subStr = messageStr.substr(startSubString, endSubString - startSubString);
+        messageStr = messageStr.substr(0, startSubString) + channelLink(channels['text'][subStr]) + messageStr.substr(endSubString);
+
+        startSubString = messageStr.indexOf('<', endSubString) + 1;//Won't go over the <
+        endSubString = messageStr.indexOf('>', startSubString);
+    }
+
+    logMessage('info', 'messageStr=' + messageStr);
+    return messageStr;
+}
+
+function replaceSubStrByIndex(str, replacement, index) {
+    return str.substr(0, index) + replacement + str.substr(index + replacement.length);
 }
