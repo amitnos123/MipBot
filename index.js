@@ -59,11 +59,26 @@ client.on('message', function (message) {
                 message.channel.send('Error 404');
                 break;
         }
+
+        //messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
+        //let memberArr = [];
+        //memberArr['memberName'] = '615187747279470604';
+        //messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
+        //logMessage('debug', messageSend);
+        //message.channel.send(messageSend);
+        //message.channel.send('<@' + message.member.id+ '>');
+
+        //logMessage('debug', message.member);
+
         logMessage('debug', 'On message End');
     }
 });
 
 client.on("guildMemberAdd", member => {
+    messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
+    let memberArr = [];
+    memberArr['memberName'] = member.id;
+    messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
     client.channels.get(messages.WELCOME.CHANNEL_ID).send(messages.WELCOME.MESSAGE).catch(console.error);
 });
 
@@ -105,6 +120,11 @@ function deleteMessages(message, NumOfMessages) {
 
 function convertChannelLink(channelIdStr) {
     let str = '<#' + channelIdStr + '>';
+    return str;
+}
+
+function convertMemberLink(channelIdStr) {
+    let str = '<@' + channelIdStr + '>';
     return str;
 }
 
