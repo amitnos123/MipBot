@@ -62,18 +62,18 @@ client.on('message', function (message) {
                     }
                     break;
                 case 'testMessage':
-                    messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
+                    messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
                     
                     if(arg[1] != undefined) { memberArr['memberName'] = arg[1];}
                     else { memberArr['memberName'] = '615187747279470604'; }
                     
-                    messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
+                    messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
                     message.channel.send(messageSend);
                     break;
                 case 'testMessageGeneral':
-                        messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
-                        memberArr['memberName'] = 109982657667944448;
-                        messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
+                        messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
+                        memberArr['memberName'] = '109982657667944448';
+                        messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
                         client.channels.get(channels['text'][messages.WELCOME.CHANNEL]).send(messageSend).catch(console.error);
                         break;
                 case 'testGetChannelId':
@@ -81,10 +81,6 @@ client.on('message', function (message) {
                     message.channel.send(messageSend);
                     break;
                 case 'testGetWelcomeChannelId':
-                        //messageSend = channels['text'][messages.WELCOME.CHANNEL];
-                        //message.channel.send(messageSend);
-                        //let ch = client.channels.get(channels['text'][messages.WELCOME.CHANNEL]);
-                        //logMessage('debug', ch);
                         messageSend = 'TEST WORKS';
                         client.channels.get(channels['text'][messages.WELCOME.CHANNEL]).send(messageSend).catch(console.error);
                         break;
@@ -99,6 +95,10 @@ client.on('message', function (message) {
                     } else {
                         message.channel.send('Error 404: Function doesn\'t exist in man');
                     }
+                    break;
+                case 'testLib':
+                        let strTestLib = LIB.Messages.convertChannelLink('616273099708563458');
+                        message.channel.send(strTestLib);
                     break;
                 default:
                     message.channel.send('Error 404: Function doesn\'t exist');
@@ -115,9 +115,9 @@ client.on('message', function (message) {
 client.on("guildMemberAdd", member => {
     let chId = channels['text'][messages.WELCOME.CHANNEL];
     let memberArr = [];
-    memberArr['memberName'] = member.id;
-    messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
-    messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
+    memberArr['memberName'] = member.id.toString();
+    messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
+    messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
     client.channels.get(chId).send(messageSend).catch(console.error);
 });
 
@@ -152,13 +152,8 @@ function logSplit() {
 	console.log('-------------------------------');
 }
 
-function isInteger(str) {
-    let patt = new RegExp('^([0-9]+)$');
-    return patt.test(str);
-}
-
 function deleteMessages(message, NumOfMessages) {
-    if (isInteger(NumOfMessages)) {
+    if (LIB.Validation.isInteger(NumOfMessages)) {
         if (parseInt(NumOfMessages) <= MAX_DELETE_ROWS) {
             message.channel.bulkDelete(NumOfMessages);
             logMessage('debug', 'Deleted ' + NumOfMessages + ' Messages');
@@ -169,44 +164,4 @@ function deleteMessages(message, NumOfMessages) {
         logMessage('debug', NumOfMessages + ' isn\'t a integer');
         message.reply('\'' + NumOfMessages + '\' isn\'t a integer');
     }
-}
-
-function convertChannelLink(channelIdStr) {
-    let str = '<#' + channelIdStr + '>';
-    return str;
-}
-
-function convertMemberLink(MemberIdStr) {
-    let str = '<@' + MemberIdStr + '>';
-    return str;
-}
-
-/*
-messageStr - String that is the message
-startChar - the first char, that will be a flag for where are the substrings start
-endChar - the first char, that will be a flag for where are the substrings end
-convertFunc - Function which convert the string to Another string
-strArr - Array of the substring to put in, where the keys are the substring in the original messageStr
-*/
-function replaceWith(messageStr, startChar, endChar, convertFunc, strArr) {
-    let startSubString = 1;
-    let endSubString = 0;
-    let subStr = 0;
-
-    startSubString = messageStr.indexOf(startChar);
-    endSubString = messageStr.indexOf(endChar, startSubString) + 1;//Will go over the startChar
-    while (startSubString != -1 && endSubString != 0) {
-        subStr = messageStr.substr(startSubString, endSubString - startSubString);
-
-        newStr = messageStr.substr(0, startSubString);
-        //Removing from subStr the first and last chars, which are startChar, endChar
-        newStr += convertFunc(strArr[subStr.substr(1, subStr.length - 2)]);
-        messageStr = newStr + messageStr.substr(endSubString);
-
-        startSubString = messageStr.indexOf(startChar, endSubString);
-        endSubString = messageStr.indexOf(endChar, startSubString) + 1;//Will go over the startChar
-    }
-
-    logMessage('info', 'messageStr=' + messageStr);
-    return messageStr;
 }
