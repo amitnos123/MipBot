@@ -1,7 +1,7 @@
 logSplit();
 logMessage('start','Defining Constants');
 //Constants
-const PREFIX = '!';
+const PREFIX = '-';
 const MAX_DELETE_ROWS = 100;
 const JSON_PATH = './json_files/';
 const LIB_PATH = './lib/';
@@ -74,7 +74,9 @@ client.on('message', function (message) {
                         messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
                         memberArr['memberName'] = '109982657667944448';
                         messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
-                        client.channels.get(channels['text'][messages.WELCOME.CHANNEL]).send(messageSend).catch(console.error);
+                        logMessage('debug', messageSend);
+						logMessage('debug', channels['text'][messages.WELCOME.CHANNEL]);
+						client.channels.get(channels['text'][messages.WELCOME.CHANNEL]).send(messageSend).catch(console.error);
                         break;
                 case 'testGetChannelId':
                     messageSend = channels[arg[1]][arg[2]];
@@ -100,6 +102,9 @@ client.on('message', function (message) {
                         let strTestLib = LIB.Messages.convertChannelLink('616273099708563458');
                         message.channel.send(strTestLib);
                     break;
+				case 'giveRoleSelf':
+					giveSelfRole(message);
+					break;
                 default:
                     message.channel.send('Error 404: Function doesn\'t exist');
                     break;
@@ -153,6 +158,7 @@ function logSplit() {
 }
 
 function deleteMessages(message, NumOfMessages) {
+	
     if (LIB.Validation.isInteger(NumOfMessages)) {
         if (parseInt(NumOfMessages) <= MAX_DELETE_ROWS) {
             message.channel.bulkDelete(NumOfMessages);
@@ -164,4 +170,17 @@ function deleteMessages(message, NumOfMessages) {
         logMessage('debug', NumOfMessages + ' isn\'t a integer');
         message.reply('\'' + NumOfMessages + '\' isn\'t a integer');
     }
+}
+
+function giveSelfRole(message) {
+	let role = message.guild.roles.get('477796848023633920');
+
+	// Let's pretend you mentioned the user you want to add a role to (!addrole @user Role Name):
+	let member = client.users.get("615187747279470604");
+	logMessage('debug', member);
+
+	// or the person who made the command: let member = message.member;
+
+	// Add the role!
+	member.addRole(role).catch(console.error);
 }
