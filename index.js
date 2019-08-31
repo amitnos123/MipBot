@@ -1,33 +1,50 @@
-//Loading Libs
-const Discord = require('discord.js');
-//const fs = require('fs');
-const client = new Discord.Client();
-
+logSplit();
+logMessage('start','Defining Constants');
 //Constants
 const PREFIX = '!';
-const JSON_PATH = './json_files/';
 const MAX_DELETE_ROWS = 100;
+const JSON_PATH = './json_files/';
+const LIB_PATH = './lib/';
 
+logMessage('start','Loading Libs');
+//Loading Libs
+const Discord = require('discord.js');
+logMessage('start','	Loaded discord.js');
+const JSON5 = require('json5');
+logMessage('start','	Loaded json5');
+const LIB = require(LIB_PATH);
+
+//const fs = require('fs');
+
+logMessage('start','Creating client');
+const client = new Discord.Client();
+
+logMessage('start','Loading JSON files');
 //JSON loading
 const messages = require(JSON_PATH + 'messages.json');
+logMessage('start','	Loaded messages.json');
 const config = require(JSON_PATH + 'config.json');
+logMessage('start','	Loaded config.json');
 const channels = require(JSON_PATH + 'channels.json');
+logMessage('start','	Loaded channels.json');
+const man = require(JSON_PATH + 'man.json');
+logMessage('start','	Loaded man.json');
 
+logMessage('start','Connecting to server');
 //Connecting to server
 client.login(config.token);
+logMessage('start','Connected to server');
 
 //Events
 client.on('ready', function() {
-    console.log('-------------------------------');
-    console.log('Start');
+	logSplit();
+	logMessage('start','Bot is ready');
 });
 
 client.on('message', function (message) {
     let messageSend = '';
     if (message.content[0] === PREFIX && !message.author.bot) {
-        console.log('-------------------------------');
         logMessage('debug', 'On Message Start');
-        console.log('message content: ' + message.content);
         let arg = message.content.substring(PREFIX.length).split(" ");
         switch (arg[0]) {
             case 'ping':
@@ -41,34 +58,32 @@ client.on('message', function (message) {
                     return;
                 }
                 break;
-            case 'testInt':
-                message.channel.send(isInteger(arg[1]));
-                break;
-            case 'testLink':
-                message.channel.send(convertChannelLink("615195381285912600"));
-                break;
             case 'testMessage':
                 messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
-                message.channel.send(messageSend);
+                let memberArr = [];
+				
+				if(arg[1] != undefined) { memberArr['memberName'] = arg[1];}
+				else { memberArr['memberName'] = '615187747279470604'; }
+				
+				messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
+				message.channel.send(messageSend);
                 break;
             case 'testGetChannelId':
                 messageSend = channels['text'][arg[1]];
                 message.channel.send(messageSend);
                 break;
+			case 'man':
+                if(man[arg[1]] != undefined) {
+					messageSend = man[arg[1]];
+					message.channel.send(messageSend);
+				} else {
+					message.channel.send('Error 404: Function doesn\'t exist in man');
+				}
+                break;
             default:
-                message.channel.send('Error 404');
+                message.channel.send('Error 404: Function doesn\'t exist');
                 break;
         }
-
-        //messageSend = replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', convertChannelLink, channels['text']);
-        //let memberArr = [];
-        //memberArr['memberName'] = '615187747279470604';
-        //messageSend = replaceWith(messageSend, '{', '}', convertMemberLink, memberArr);
-        //logMessage('debug', messageSend);
-        //message.channel.send(messageSend);
-        //message.channel.send('<@' + message.member.id+ '>');
-
-        //logMessage('debug', message.member);
 
         logMessage('debug', 'On message End');
     }
@@ -92,11 +107,25 @@ function logMessage(debugLvl, logMessage) {
         case 'error':
             debugLvl = 'ERROR';
             break
+        case 'start':
+            debugLvl = 'START';
+            break
+        case 'end':
+            debugLvl = 'END';
+            break
         default:
             debugLvl = 'INFO';
             break
     }
-    console.log(debugLvl + ':' + logMessage);
+	
+	let today = new Date();
+	let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+	let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    console.log('['+date+' '+time+']'+debugLvl + ':' + logMessage);
+}
+
+function logSplit() {
+	console.log('-------------------------------');
 }
 
 function isInteger(str) {
@@ -123,30 +152,10 @@ function convertChannelLink(channelIdStr) {
     return str;
 }
 
-function convertMemberLink(channelIdStr) {
-    let str = '<@' + channelIdStr + '>';
+function convertMemberLink(MemberIdStr) {
+    let str = '<@' + MemberIdStr + '>';
     return str;
 }
-
-//function replaceWithChannelLinks(messageStr) {
-//    let startSubString = 1;
-//    let endSubString = 0;
-//    let subStr = 0;
-
-//    startSubString = messageStr.indexOf('<');
-//    endSubString = messageStr.indexOf('>', startSubString) + 1;//Will go over the <
-//    while (startSubString != 0 && endSubString != -1) {
-//        subStr = messageStr.substr(startSubString, endSubString - startSubString);
-//        messageStr = messageStr.substr(0, startSubString) + convertChannelLink(channels['text'][subStr]) + messageStr.substr(endSubString);
-
-//        startSubString = messageStr.indexOf('<', endSubString) + 1;//Won't go over the <
-//        endSubString = messageStr.indexOf('>', startSubString);
-//    }
-
-//    logMessage('info', 'messageStr=' + messageStr);
-//    return messageStr;
-//}
-
 
 function replaceWith(messageStr, startChar, endChar, convertFunc, strArr) {
     let startSubString = 1;
