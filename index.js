@@ -127,19 +127,19 @@ function logMessage(debugLvl, logMessage) {
     switch (debugLvl) {
         case 'debug':
             debugLvl = 'DEBUG';
-            break
+            break;
         case 'error':
             debugLvl = 'ERROR';
-            break
+            break;
         case 'start':
             debugLvl = 'START';
-            break
+            break;
         case 'end':
             debugLvl = 'END';
-            break
+            break;
         default:
             debugLvl = 'INFO';
-            break
+            break;
     }
 	
 	let today = new Date();
