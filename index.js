@@ -1,7 +1,7 @@
 logSplit();
 logMessage('start','Defining Constants');
 //Constants
-const PREFIX = '-';
+const PREFIX = '+';
 const MAX_DELETE_ROWS = 100;
 const JSON_PATH = './json_files/';
 const LIB_PATH = './lib/';
@@ -53,6 +53,24 @@ client.on('message', function (message) {
                 case 'ping':
                     message.channel.send('pong');
                     break;
+                case 'man':
+                    if(man[arg[1]] != undefined) {
+                        messageSend = man[arg[1]];
+                        message.channel.send(messageSend);
+                    } else {
+                        message.channel.send('Error 404: Function doesn\'t exist in man');
+                    }
+                    break;
+				case 'i_am_new':
+					if(arg[1] === 'bob') {
+						giveWholeSomeKinksterRole(message.member);
+						messageOnJoin(message.member);
+						message.delete();
+					} else {
+						error404(message);
+					}
+					break;
+				/*
                 case 'delete':
                     if (arg[1]) {
                         deleteMessages(message, arg[1]);
@@ -60,6 +78,10 @@ client.on('message', function (message) {
                         message.reply('Error, missing arguments for function');
                         return;
                     }
+                    break;
+                case 'testLib':
+                        let strTestLib = LIB.Messages.convertChannelLink('616273099708563458');
+                        message.channel.send(strTestLib);
                     break;
                 case 'testMessage':
                     messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
@@ -90,23 +112,11 @@ client.on('message', function (message) {
                     messageSend = channels['text'][arg[1]];
                     message.channel.send(messageSend);
                     break;
-                case 'man':
-                    if(man[arg[1]] != undefined) {
-                        messageSend = man[arg[1]];
-                        message.channel.send(messageSend);
-                    } else {
-                        message.channel.send('Error 404: Function doesn\'t exist in man');
-                    }
-                    break;
-                case 'testLib':
-                        let strTestLib = LIB.Messages.convertChannelLink('616273099708563458');
-                        message.channel.send(strTestLib);
-                    break;
 				case 'giveRoleSelf':
 					giveSelfRole(message);
-					break;
+					break;*/
                 default:
-                    message.channel.send('Error 404: Function doesn\'t exist');
+                    error404(message);
                     break;
             }
         } catch(err) {
@@ -118,12 +128,13 @@ client.on('message', function (message) {
 });
 
 client.on("guildMemberAdd", member => {
-    let chId = channels['text'][messages.WELCOME.CHANNEL];
-    let memberArr = [];
-    memberArr['memberName'] = member.id.toString();
-    messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
-    messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
-    client.channels.get(chId).send(messageSend).catch(console.error);
+    //let chId = channels['text'][messages.WELCOME.CHANNEL];
+    //let memberArr = [];
+	
+    //memberArr['memberName'] = member.id.toString();
+    //messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
+    //messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
+    //client.channels.get(chId).send(messageSend).catch(console.error);
 });
 
 
@@ -157,6 +168,10 @@ function logSplit() {
 	console.log('-------------------------------');
 }
 
+function error404(message) {
+	message.channel.send('Error 404: Function doesn\'t exist');
+}
+
 function deleteMessages(message, NumOfMessages) {
 	
     if (LIB.Validation.isInteger(NumOfMessages)) {
@@ -172,15 +187,17 @@ function deleteMessages(message, NumOfMessages) {
     }
 }
 
-function giveSelfRole(message) {
-	let role = message.guild.roles.get('477796848023633920');
+function giveWholeSomeKinksterRole(member) {
+	const role = member.guild.roles.find(role => role.name === 'Wholesome Kinkster');
+	member.addRole(role); 
+}
 
-	// Let's pretend you mentioned the user you want to add a role to (!addrole @user Role Name):
-	let member = client.users.get("615187747279470604");
-	logMessage('debug', member);
-
-	// or the person who made the command: let member = message.member;
-
-	// Add the role!
-	member.addRole(role).catch(console.error);
+function messageOnJoin(member) {
+	let chId = channels['text'][messages.WELCOME.CHANNEL];
+    let memberArr = [];
+	
+    memberArr['memberName'] = member.id.toString();
+    messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
+    messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
+    client.channels.get(chId).send(messageSend).catch(console.error);
 }
