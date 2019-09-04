@@ -1,203 +1,120 @@
 logSplit();
-logMessage('start','Defining Constants');
-//Constants
-const PREFIX = '+';
-const MAX_DELETE_ROWS = 100;
+logMessage('start', 'Defining Constants');
+// Constants
 const JSON_PATH = './json_files/';
 const LIB_PATH = './lib/';
+const COMMANDS_PATH = 'E:\\discord_bots\\MipBot\\commands\\';
 
-logMessage('start','Loading Libs');
-//Loading Libs
+logMessage('start', 'Loading config');
+const { prefix, token } = require('./config.json');
+
+logMessage('start', 'Loading Libs');
+// Loading Libs
 const Discord = require('discord.js');
-logMessage('start','	Loaded discord.js');
-const JSON5 = require('json5');
-logMessage('start','	Loaded json5');
+logMessage('start', 'Loaded discord.js');
+const fs = require('fs');
+logMessage('start', 'Loaded fs');
+// const JSON5 = require('json5');
+// logMessage('start', 'Loaded json5');
 const LIB = require(LIB_PATH);
 
-//const fs = require('fs');
-
-logMessage('start','Creating client');
+logMessage('start', 'Creating client');
 const client = new Discord.Client();
+client.commands = new Discord.Collection();
 
-logMessage('start','Loading JSON files');
-//JSON loading
+const path = require('path');
+logMessage('debug', path.dirname(COMMANDS_PATH));
+
+logMessage('start', 'Syncing Commands');
+const commandFiles = fs.readdirSync(COMMANDS_PATH).filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+  const command = require(COMMANDS_PATH + `${file}`);
+  client.commands.set(command.name, command);
+}
+
+logMessage('start', 'Loading JSON files');
+// JSON loading
 const messages = require(JSON_PATH + 'messages.json');
-logMessage('start','	Loaded messages.json');
-const config = require(JSON_PATH + 'config.json');
-logMessage('start','	Loaded config.json');
+logMessage('start', 'Loaded messages.json');
 const channels = require(JSON_PATH + 'channels.json');
-logMessage('start','	Loaded channels.json');
+logMessage('start', 'Loaded channels.json');
 const man = require(JSON_PATH + 'man.json');
-logMessage('start','	Loaded man.json');
+logMessage('start', 'Loaded man.json');
 
-logMessage('start','Connecting to server');
-//Connecting to server
-client.login(config.token);
-logMessage('start','Connected to server');
+const JSON_FILES = {
+  messages: messages,
+  channels: channels,
+  man: man,
+};
 
-//Events
-client.on('ready', function() {
-	logSplit();
-	logMessage('start','Bot is ready');
+logMessage('start', 'Connecting to server');
+// Connecting to server
+client.login(token);
+logMessage('start', 'Connected to server');
+
+// Events
+client.on('ready', () => {
+  logSplit();
+  logMessage('start', 'Bot is ready');
 });
 
-client.on('message', function (message) {
-    let messageSend = '';
-    let memberArr = [];
-    if (message.content[0] === PREFIX && !message.author.bot) {
-        logMessage('debug', 'On Message Start');
-        try 
-        {
-            let arg = message.content.substring(PREFIX.length).split(" ");
-            switch (arg[0]) {
-                case 'ping':
-                    message.channel.send('pong');
-                    break;
-                case 'man':
-                    if(man[arg[1]] != undefined) {
-                        messageSend = man[arg[1]];
-                        message.channel.send(messageSend);
-                    } else {
-                        message.channel.send('Error 404: Function doesn\'t exist in man');
-                    }
-                    break;
-				case 'i_am_new':
-					if(arg[1] === 'bob') {
-						giveWholeSomeKinksterRole(message.member);
-						messageOnJoin(message.member);
-						message.delete();
-					} else {
-						error404(message);
-					}
-					break;
-				/*
-                case 'delete':
-                    if (arg[1]) {
-                        deleteMessages(message, arg[1]);
-                    } else {
-                        message.reply('Error, missing arguments for function');
-                        return;
-                    }
-                    break;
-                case 'testLib':
-                        let strTestLib = LIB.Messages.convertChannelLink('616273099708563458');
-                        message.channel.send(strTestLib);
-                    break;
-                case 'testMessage':
-                    messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
-                    
-                    if(arg[1] != undefined) { memberArr['memberName'] = arg[1];}
-                    else { memberArr['memberName'] = '615187747279470604'; }
-                    
-                    messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
-                    message.channel.send(messageSend);
-                    break;
-                case 'testMessageGeneral':
-                        messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
-                        memberArr['memberName'] = '109982657667944448';
-                        messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
-                        logMessage('debug', messageSend);
-						logMessage('debug', channels['text'][messages.WELCOME.CHANNEL]);
-						client.channels.get(channels['text'][messages.WELCOME.CHANNEL]).send(messageSend).catch(console.error);
-                        break;
-                case 'testGetChannelId':
-                    messageSend = channels[arg[1]][arg[2]];
-                    message.channel.send(messageSend);
-                    break;
-                case 'testGetWelcomeChannelId':
-                        messageSend = 'TEST WORKS';
-                        client.channels.get(channels['text'][messages.WELCOME.CHANNEL]).send(messageSend).catch(console.error);
-                        break;
-                case 'testGetChannelIdByMessage':
-                    messageSend = channels['text'][arg[1]];
-                    message.channel.send(messageSend);
-                    break;
-				case 'giveRoleSelf':
-					giveSelfRole(message);
-					break;*/
-                default:
-                    error404(message);
-                    break;
-            }
-        } catch(err) {
-            logMessage('error', err);
-        }
+client.on('message', message => {
+  if (!message.content.startsWith(prefix) || message.author.bot) return;
+  try {
+    logMessage('debug', 'On message Start');
 
-        logMessage('debug', 'On message End');
+    const args = message.content.slice(prefix.length).split(' ');
+    const command = args.shift();
+
+    if (!client.commands.has(command)) {
+      error404(message);
+      return;
     }
+
+    client.commands.get(command).execute(client, JSON_FILES, LIB, message, args);
+
+    logMessage('debug', 'On message End');
+  }
+  catch (err) {
+    logMessage('error', err);
+  }
 });
 
-client.on("guildMemberAdd", member => {
-    //let chId = channels['text'][messages.WELCOME.CHANNEL];
-    //let memberArr = [];
-	
-    //memberArr['memberName'] = member.id.toString();
-    //messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
-    //messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
-    //client.channels.get(chId).send(messageSend).catch(console.error);
-});
+// client.on('guildMemberAdd', member => {
 
+// });
 
-//Functions
-function logMessage(debugLvl, logMessage) {
-    switch (debugLvl) {
-        case 'debug':
-            debugLvl = 'DEBUG';
-            break;
-        case 'error':
-            debugLvl = 'ERROR';
-            break;
-        case 'start':
-            debugLvl = 'START';
-            break;
-        case 'end':
-            debugLvl = 'END';
-            break;
-        default:
-            debugLvl = 'INFO';
-            break;
-    }
-	
-	let today = new Date();
-	let date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-	let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    console.log('['+date+' '+time+']'+debugLvl + ':' + logMessage);
+// Functions
+function logMessage(debugLvl, message) {
+  switch (debugLvl) {
+    case 'debug':
+      debugLvl = 'DEBUG';
+      break;
+    case 'error':
+      debugLvl = 'ERROR';
+      break;
+    case 'start':
+      debugLvl = 'START';
+      break;
+    case 'end':
+      debugLvl = 'END';
+      break;
+    default:
+      debugLvl = 'INFO';
+      break;
+  }
+
+  const today = new Date();
+  const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  const time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+  console.log('[' + date + ' ' + time + ']' + debugLvl + ':' + message);
 }
 
 function logSplit() {
-	console.log('-------------------------------');
+  console.log('-------------------------------');
 }
 
 function error404(message) {
-	message.channel.send('Error 404: Function doesn\'t exist');
-}
-
-function deleteMessages(message, NumOfMessages) {
-	
-    if (LIB.Validation.isInteger(NumOfMessages)) {
-        if (parseInt(NumOfMessages) <= MAX_DELETE_ROWS) {
-            message.channel.bulkDelete(NumOfMessages);
-            logMessage('debug', 'Deleted ' + NumOfMessages + ' Messages');
-        } else {
-            message.reply('Max delete row allowed is ' + MAX_DELETE_ROWS);
-        }
-    } else {
-        logMessage('debug', NumOfMessages + ' isn\'t a integer');
-        message.reply('\'' + NumOfMessages + '\' isn\'t a integer');
-    }
-}
-
-function giveWholeSomeKinksterRole(member) {
-	const role = member.guild.roles.find(role => role.name === 'Wholesome Kinkster');
-	member.addRole(role); 
-}
-
-function messageOnJoin(member) {
-	let chId = channels['text'][messages.WELCOME.CHANNEL];
-    let memberArr = [];
-	
-    memberArr['memberName'] = member.id.toString();
-    messageSend = LIB.Messages.replaceWith(messages['WELCOME']['MESSAGE'], '<', '>', LIB.Messages.convertChannelLink, channels['text']);
-    messageSend = LIB.Messages.replaceWith(messageSend, '{', '}', LIB.Messages.convertMemberLink, memberArr);
-    client.channels.get(chId).send(messageSend).catch(console.error);
+  message.channel.send('Error 404: Function doesn\'t exist');
 }
