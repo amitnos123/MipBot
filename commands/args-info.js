@@ -1,8 +1,9 @@
+const path = require('path');
 module.exports = {
-  name: 'args-info',
+  name: path.basename(__filename).split('.').slice(0, -1).join('.'),
   description: 'Information about the arguments provided.',
   args: true,
-  execute(message, JSON_FILES, LIB, args) {
+  execute(client, JSON_FILES, LIB, message, args) {
     if (args[0] === 'foo') {
       return message.channel.send('bar');
     }

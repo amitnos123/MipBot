@@ -1,9 +1,12 @@
+const path = require('path');
+const { logMessage } = require('../logWriter.js');
 module.exports = {
-  name: 'i_am_new',
+  name: path.basename(__filename).split('.').slice(0, -1).join('.'),
   description: 'Give role and welcome message, if wrote the password write',
   args: true,
   execute(client, JSON_FILES, LIB, message, args) {
-    if (args[0] === 'bob') {
+    if (args[0] === JSON_FILES.authorizion.WELCOME_PASSWORD) {
+      logMessage('info', `[id:${message.member.id}, displayName:${message.member.displayName}, nickname:${message.member.nickname}] has joined the server.`);
       LIB.roles.giveMemberRole(message.member, 'Wholesome Kinkster');
       messageOnJoin(message.member, client, LIB, JSON_FILES.channels, JSON_FILES.messages);
     }
