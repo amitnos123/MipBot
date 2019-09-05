@@ -1,4 +1,6 @@
-node_modules/
+#Dir
+node_modules/*
 log/*
+
+#Files
 config.json
-.
