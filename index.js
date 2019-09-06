@@ -53,7 +53,7 @@ client.on('ready', () => {
 client.on('message', message => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
   try {
-    logMessage('debug', 'On message Start');
+    logMessage('info', 'On message Start');
 
     const args = message.content.slice(prefix.length).split(' ');
     const command = args.shift();
@@ -66,7 +66,7 @@ client.on('message', message => {
 
     client.commands.get(command).execute(client, JSON_FILES, LIB, message, args);
 
-    logMessage('debug', 'On message End');
+    logMessage('info', 'On message End');
   }
   catch (err) {
     logMessage('error', err);

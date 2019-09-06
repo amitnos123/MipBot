@@ -2,7 +2,7 @@ const path = require('path');
 const { logMessage } = require('../logWriter.js');
 module.exports = {
   name: path.basename(__filename).split('.').slice(0, -1).join('.'),
-  description: 'Give role and welcome message, if wrote the password write',
+  description: 'Give role and welcome message, if wrote the password right',
   args: true,
   execute(client, JSON_FILES, LIB, message, args) {
     if (args[0] === JSON_FILES.authorizion.WELCOME_PASSWORD) {
