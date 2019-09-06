@@ -1,10 +1,2 @@
 # MipBot
-Before run, will need to create a json file named config, config.json.
-
-config.json = 
-{
-	"prefix": "PREFIX",
-	"token":"TOKEN"
-}
-
-insert your token and prefix of your bot.
+Change '.config.json' to 'config.json' and insert your token and prefix of your bot.
