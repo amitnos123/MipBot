@@ -7,4 +7,4 @@ config.json =
 	"token":"TOKEN"
 }
 
-insert your token and prefixof your bot.
+insert your token and prefix of your bot.
