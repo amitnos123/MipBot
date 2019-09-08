@@ -5,25 +5,29 @@ const JSON_PATH = 'json_files';
 const LIB_PATH = 'lib';
 const COMMANDS_PATH = 'commands';
 
-logMessage('start', 'Loading config');
+logMessage('load', 'Loading config');
 const { prefix, token } = require('./config.json');
 
-logMessage('start', 'Loading Libs');
 const path = require('path');
-logMessage('start', 'Loaded path');
-const Discord = require('discord.js');
-logMessage('start', 'Loaded discord.js');
-const fs = require('fs');
-logMessage('start', 'Loaded fs');
-const LIB = require(path.join(__dirname, LIB_PATH));
+logMessage('load', 'Loaded path');
 
-logMessage('start', 'Loading JSON files');
-const JSON_FILES = require(path.join(__dirname, JSON_PATH));
+const Discord = require('discord.js');
+logMessage('load', 'Loaded discord.js');
 
 logMessage('start', 'Creating client');
 const client = new Discord.Client();
 
-logMessage('start', 'Loading bot\'s information');
+const fs = require('fs');
+logMessage('start', 'Loaded fs');
+
+const { LIB } = require(path.join(__dirname, LIB_PATH));
+client.LIB = LIB;
+
+logMessage('load', 'Loading JSON files');
+const { JSON_FILES } = require(path.join(__dirname, JSON_PATH));
+client.JSON_FILES = JSON_FILES;
+
+logMessage('load', 'Loading bot\'s information');
 const { name, version, description, author } = require('./package.json');
 client.information = new Discord.Collection();
 client.information.set('name', name);
@@ -64,7 +68,7 @@ client.on('message', message => {
       return;
     }
 
-    client.commands.get(command).execute(client, JSON_FILES, LIB, message, args);
+    client.commands.get(command).execute(client, message, args);
 
     logMessage('info', 'On message End');
   }

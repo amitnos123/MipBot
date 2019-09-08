@@ -3,7 +3,7 @@ module.exports = {
   name: path.basename(__filename).split('.').slice(0, -1).join('.'),
   description: 'Bot ping',
   args: true,
-  execute(client, JSON_FILES, LIB, message, args) {
+  execute(client, message, args) {
     message.channel.send(`Current ping is ${client.ping}(ms)`);
   },
 };

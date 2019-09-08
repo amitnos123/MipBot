@@ -3,7 +3,7 @@ module.exports = {
   name: path.basename(__filename).split('.').slice(0, -1).join('.'),
   description: 'Information about the arguments provided.',
   args: true,
-  execute(client, JSON_FILES, LIB, message, args) {
+  execute(client, message, args) {
     if (args[0] === 'foo') {
       return message.channel.send('bar');
     }

@@ -22,6 +22,9 @@ function logMessage(debugLvl, message) {
     case 'end':
       debugLvl = 'END';
       break;
+    case 'load':
+      debugLvl = 'LOAD';
+      break;
     default:
       debugLvl = 'INFO';
       break;
