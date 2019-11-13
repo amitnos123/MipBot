@@ -49,7 +49,7 @@ client.login(token);
 logMessage('start', 'Connected to server');
 
 // Events
-client.on('ready', () => {
+client.on('ready', function() {
   logSplit();
   logMessage('start', 'Bot is ready');
 });
