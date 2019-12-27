@@ -55,7 +55,13 @@ client.on('ready', function() {
 });
 
 client.on('message', message => {
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
+  if (message.author.bot) return;
+
+  if (!message.content.startsWith(prefix)) {
+    nonCommandMessage(message);
+    return;
+  }
+
   try {
     logMessage('info', 'On message Start');
 
@@ -84,4 +90,26 @@ client.on('message', message => {
 // Functions
 function error404(message) {
   message.channel.send('Error 404: Function doesn\'t exist');
+}
+
+function nonCommandMessage(message) {
+  if (message.channel.name === 'welcome') {
+    const args = message.content.slice().split(' ');
+    const command = args.shift();
+    if (command === 'I_have') {
+	  logMessage('debug', `${command} was called, with arguments: ${args}`);
+      client.commands.get(command).execute(client, message, args);
+      return;
+    }
+    else if (command === 'I') {
+      const firstArg = args.shift();
+      if (firstArg === 'have') {
+	    logMessage('debug', `${command} was called, with arguments: ${args}`);
+        client.commands.get('I_have').execute(client, message, args);
+        return;
+      }
+    }
+
+    message.delete();
+  };
 }

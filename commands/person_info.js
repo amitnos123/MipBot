@@ -1,4 +1,5 @@
 const path = require('path');
+const { logMessage } = require('../logWriter.js');
 module.exports = {
   name: path.basename(__filename).split('.').slice(0, -1).join('.'),
   description: 'To see the information the person wrote about themself',
@@ -11,7 +12,9 @@ module.exports = {
         .setColor('#0099ff')
         .setTitle(args[0]);
       for (const property in personInfo) {
-        personEmbed.addField(`${property}`, `${personInfo[property]}`, true);
+        if(personInfo[property] !== '') {
+			personEmbed.addField(`${property}`, `${personInfo[property]}`, true);
+		}
       }
 
       message.channel.send(personEmbed);
