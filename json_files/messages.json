@@ -1,6 +1,6 @@
 {
 	"WELCOME":{
-	"MESSAGE": "Welcome new peep, {memberName} ! Please check out the <get-a-role> and <roster> channels and make yourself at home here! (Please remember to delete in <get-a-role> once you’re finished!)",
+	"MESSAGE": "Welcome new peep, {memberName} ! Please check out the <get-a-role> and <roster> channels and make yourself at home here!",
 	"CHANNEL" : "general"
 	},
 	"TEST":{
