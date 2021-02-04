@@ -1,1 +1,2 @@
-worker: pm2 start index.js
+install: npm install forever -g
+worker: forever start index.js
